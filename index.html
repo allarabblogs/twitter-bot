@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -141,7 +142,7 @@ async function loadArchive(){
   try{
     const res=await fetch('tweets.json');
     const data=await res.json();
-    archiveTweets=data.map(t=>({text:t.t,date:t.d,likes:t.l,retweets:t.r,link:t.i?`https://twitter.com/Allarabblogs/status/${t.i}`:'',source:'archive'}));
+    archiveTweets=data.map(t=>({text:t.t,date:t.d,likes:t.l,retweets:t.r,link:t.i?`https://twitter.com/Allarabblogs/status/${t.i}`:'',source:'archive'})).sort((a,b)=>new Date(b.date)-new Date(a.date));
     updateStats();
   }catch(e){document.getElementById('load-status').textContent='تعذر تحميل الأرشيف';console.warn(e);}
 }
@@ -198,7 +199,7 @@ async function doSearch(){
   document.getElementById('main-area').innerHTML=`<div class="loading"><div class="spinner"></div><br>جاري البحث في ${allTweets.length.toLocaleString()} تغريدة...</div>`;
   const words=q.split(/\s+/).filter(Boolean);
   const normWords=words.map(normalize);
-  const scored=allTweets.map(t=>({...t,score:scoreMatch(t,normWords)})).filter(t=>t.score>0).sort((a,b)=>b.score-a.score).slice(0,20);
+  const scored=allTweets.map(t=>({...t,score:scoreMatch(t,normWords)})).filter(t=>t.score>0).sort((a,b)=>b.score-a.score||new Date(b.date)-new Date(a.date)).slice(0,20);
   const tweetSample=scored.slice(0,8).map(t=>t.text).join('\n---\n');
 
   let aiAnswer='';
@@ -219,7 +220,7 @@ async function doSearch(){
   }else{
     html+=`<div class="results-label">${scored.length} تغريدة مطابقة من أصل ${allTweets.length.toLocaleString()}</div>`;
     scored.forEach(t=>{
-      const date=t.date?new Date(t.date).toLocaleDateString('ar-SA',{year:'numeric',month:'short',day:'numeric'}):'';
+      const date=t.date?new Date(t.date).toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric'}):'';
       const badge=t.source==='rss'?`<span class="source-badge badge-rss">جديد</span>`:`<span class="source-badge badge-archive">أرشيف</span>`;
       const link=t.link?`<a href="${t.link}" target="_blank" rel="noopener">عرض ↗</a>`:'';
       html+=`<div class="tweet-card"><div class="tweet-text">${highlight(t.text,words)}</div><div class="tweet-meta">${badge}${date?`<span>${date}</span>`:''}${t.likes?`<span>♥ ${t.likes.toLocaleString()}</span>`:''}${link}</div></div>`;
