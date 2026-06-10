@@ -1,13 +1,6 @@
 {
   "version": 2,
-  "builds": [
-    { "src": "index.html", "use": "@vercel/static" },
-    { "src": "tweets.json", "use": "@vercel/static" },
-    { "src": "api/search.js", "use": "@vercel/node" }
-  ],
-  "routes": [
-    { "src": "/api/search", "dest": "/api/search.js" },
-    { "src": "/tweets.json", "dest": "/tweets.json" },
-    { "src": "/", "dest": "/index.html" }
-  ]
+  "functions": {
+    "api/*.js": { "runtime": "@vercel/node" }
+  }
 }
