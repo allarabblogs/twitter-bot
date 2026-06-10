@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -193,58 +192,49 @@ async function doSearch(){
 
   addRecent(q);
   document.getElementById('search-btn').disabled=true;
-  document.getElementById('main-area').innerHTML=`<div class="loading"><div class="spinner"></div><br>Searching ${allTweets.length.toLocaleString()} tweets...<div class="loading-steps">Understanding the meaning of your search...</div></div>`;
 
   const words=q.split(/\s+/).filter(Boolean);
   const normWords=words.map(normalize);
 
-  // Step 1: keyword pre-filter to get top 100 candidates
+  // STEP 1: Instant keyword search - always works
   const withScores=allTweets.map(t=>({...t,score:keywordScore(t,normWords)}));
-  // get top 80 by keyword score, plus 20 most recent (to catch new tweets that might be relevant)
-  const topKeyword=withScores.filter(t=>t.score>0).sort((a,b)=>b.score-a.score).slice(0,80);
-  const topRecent=allTweets.slice(0,20);
-  const seen=new Set(topKeyword.map(t=>t.text.slice(0,40)));
-  const candidates=[...topKeyword,...topRecent.filter(t=>!seen.has(t.text.slice(0,40)))].slice(0,100);
+  const keywordResults=withScores.filter(t=>t.score>0).sort((a,b)=>b.score-a.score).slice(0,30);
+  const sorted=[...keywordResults].sort((a,b)=>new Date(b.date)-new Date(a.date));
 
-  // Step 2: send to AI for semantic ranking
-  let aiIndices=[];
-  let aiSummary='';
+  // Render keyword results immediately
+  renderResults(q,sorted,allTweets.length,'<div class="loading" style="padding:14px"><div class="spinner" style="width:14px;height:14px"></div> AI is analyzing...</div>');
+  document.getElementById('search-btn').disabled=false;
 
+  // STEP 2: AI summary in background (does not block results)
+  const tweetSample=keywordResults.slice(0,10).map(t=>t.text).join('\n---\n');
   try{
     const res=await fetch('/api/search',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        query:q,
-        candidates:candidates.map(t=>({text:t.text}))
-      })
+      body:JSON.stringify({query:q,candidates:keywordResults.slice(0,40).map(t=>({text:t.text}))})
     });
     const data=await res.json();
-    aiIndices=Array.isArray(data.indices)?data.indices:[];
-    aiSummary=data.summary||'';
+    const summary=data.summary||data.error||'';
+    const aiBox=document.getElementById('ai-box');
+    if(aiBox&&summary){
+      aiBox.innerHTML=`<div class="ai-label">✦ AI Analysis</div><div class="ai-text">${summary}</div>`;
+    } else if(aiBox){
+      aiBox.style.display='none';
+    }
   }catch(e){
-    // fallback to keyword results
-    aiIndices=topKeyword.slice(0,15).map((_,i)=>i);
-    aiSummary='تعذر الاتصال بالذكاء الاصطناعي، النتائج مرتبة بالكلمات المفتاحية.';
+    const aiBox=document.getElementById('ai-box');
+    if(aiBox)aiBox.style.display='none';
+    console.error('AI failed:',e);
   }
+}
 
-  // Step 3: get the AI-selected tweets, sorted by date descending
-  const selected=aiIndices
-    .filter(i=>i>=0&&i<candidates.length)
-    .map(i=>candidates[i])
-    .sort((a,b)=>new Date(b.date)-new Date(a.date));
-
-  let html='';
-
-  if(aiSummary){
-    html+=`<div class="ai-card"><div class="ai-label">✦ AI Analysis</div><div class="ai-text">${aiSummary}</div></div>`;
-  }
-
-  if(!selected.length){
+function renderResults(q,results,total,aiPlaceholder){
+  let html=`<div class="ai-card" id="ai-box">${aiPlaceholder}</div>`;
+  if(!results.length){
     html+=`<div class="empty">No tweets found for "<strong>${q}</strong>"<br><span style="font-size:12px;margin-top:6px;display:block">Try different or shorter words</span></div>`;
   }else{
-    html+=`<div class="results-label">${selected.length} relevant tweets from ${allTweets.length.toLocaleString()} total</div>`;
-    selected.forEach(t=>{
+    html+=`<div class="results-label">${results.length} matching tweets from ${total.toLocaleString()} total</div>`;
+    results.forEach(t=>{
       const date=formatDate(t.date);
       const badge=t.source==='rss'
         ?`<span class="source-badge badge-rss">New</span>`
@@ -256,9 +246,7 @@ async function doSearch(){
       </div>`;
     });
   }
-
   document.getElementById('main-area').innerHTML=html;
-  document.getElementById('search-btn').disabled=false;
 }
 
 document.getElementById('search-input').addEventListener('keydown',e=>{if(e.key==='Enter')doSearch();});
