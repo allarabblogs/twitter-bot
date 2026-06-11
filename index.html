@@ -24,10 +24,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Tahoma,Arial,sans-s
 .search-row button{background:#1DA1F2;color:#fff;border:none;border-radius:10px;padding:10px 20px;font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap;font-family:inherit;transition:background .15s;flex-shrink:0}
 .search-row button:hover{background:#0d8fd8}
 .search-row button:disabled{background:#b0d8f5;cursor:not-allowed}
-.recent-label{font-size:11px;color:#aaa;margin-bottom:6px;text-align:right}
-.recent-tags{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end}
-.tag{font-size:13px;padding:4px 12px;border-radius:999px;background:#f0f0f0;border:1px solid #e5e5e5;color:#555;cursor:pointer;font-family:inherit}
-.tag:hover{background:#e5e5e5}
+.filter-row{display:flex;gap:8px;flex-wrap:wrap}
+.filter-btn{font-size:13px;padding:7px 14px;border-radius:999px;background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8;cursor:pointer;font-family:inherit;font-weight:500;transition:background .15s}
+.filter-btn:hover{background:#dbeafe}
+.filter-btn.active{background:#1d4ed8;color:#fff;border-color:#1d4ed8}
+.subs-card{background:#fff;border-radius:16px;border:1px solid #e5e5e5;padding:18px;text-align:right}
+.subs-title{font-size:16px;font-weight:600;margin-bottom:6px}
+.subs-count{font-size:13px;color:#16a34a;margin-bottom:14px}
+.subs-list{display:flex;flex-direction:column;gap:2px}
+.subs-grid{display:flex;flex-wrap:wrap;gap:8px}
+.sub-btn{font-size:14px;padding:9px 16px;border-radius:10px;background:#f7f7f5;border:1px solid #e5e5e5;color:#1a1a1a;cursor:pointer;font-family:inherit;font-weight:500;transition:all .15s}
+.sub-btn:hover{background:#1DA1F2;color:#fff;border-color:#1DA1F2}
 .stats{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;justify-content:flex-end}
 .stat{background:#fff;border:1px solid #e5e5e5;border-radius:10px;padding:8px 14px;font-size:13px;color:#888;text-align:right}
 .stat strong{color:#1a1a1a;font-weight:600}
@@ -52,6 +59,19 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Tahoma,Arial,sans-s
 .init-msg{text-align:center;padding:50px 20px;color:#aaa;font-size:14px}
 .init-msg .big{font-size:36px;margin-bottom:10px}
 .loading-steps{font-size:13px;color:#aaa;margin-top:8px}
+.comments-box{background:#fff;border-radius:16px;border:1px solid #e5e5e5;padding:18px;margin-top:20px}
+.comments-title{font-size:16px;font-weight:600;margin-bottom:14px;text-align:right}
+.comment-form{display:flex;flex-direction:column;gap:8px;margin-bottom:18px}
+.comment-form input,.comment-form textarea{border:1px solid #e5e5e5;border-radius:10px;padding:10px 14px;font-size:14px;outline:none;background:#f7f7f5;font-family:inherit;text-align:right;direction:rtl;resize:vertical}
+.comment-form input:focus,.comment-form textarea:focus{border-color:#1DA1F2;background:#fff}
+.comment-form button{background:#1DA1F2;color:#fff;border:none;border-radius:10px;padding:10px 20px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;align-self:flex-start}
+.comment-form button:hover{background:#0d8fd8}
+.comment-form button:disabled{background:#b0d8f5;cursor:not-allowed}
+.comment-item{border-bottom:1px solid #f0f0f0;padding:12px 0;text-align:right}
+.comment-item:last-child{border-bottom:none}
+.comment-author{font-size:13px;font-weight:600;color:#1a1a1a;margin-bottom:4px}
+.comment-time{font-size:11px;color:#aaa;font-weight:400;margin-right:8px}
+.comment-body{font-size:14px;line-height:1.7;color:#333}
 footer{text-align:center;padding:30px 16px 16px;font-size:12px;color:#ccc}
 @media(max-width:500px){.top-bar{padding:12px 14px}.container{padding:14px 10px}}
 </style>
@@ -78,10 +98,11 @@ footer{text-align:center;padding:30px 16px 16px;font-size:12px;color:#ccc}
       <input type="text" id="search-input" placeholder="ابحث بأي كلمة أو معنى..." />
       <button id="search-btn" onclick="doSearch()" disabled>🔍 بحث</button>
     </div>
-    <div id="recent-wrap" style="display:none">
-      <div class="recent-label">بحث سابق</div>
-      <div class="recent-tags" id="recent-tags"></div>
+    <div class="filter-row">
+      <button class="filter-btn" id="filter-0" onclick="toggleFilter(0)">📰 نشرة مرجع التدوين</button>
+      <button class="filter-btn" id="subs-btn" onclick="showSubscribers()">📺 مشتركين تلفزيون المرجع</button>
     </div>
+    <div id="filter-status" style="display:none;font-size:12px;color:#1d4ed8;margin-top:8px;text-align:right"></div>
   </div>
   <div id="main-area">
     <div class="init-msg">
@@ -92,26 +113,97 @@ footer{text-align:center;padding:30px 16px 16px;font-size:12px;color:#ccc}
   </div>
 </div>
 
+<div class="container">
+  <div class="comments-box">
+    <h2 class="comments-title">💬 التعليقات</h2>
+    <div class="comment-form">
+      <input type="text" id="comment-name" placeholder="اسمك (اختياري)" maxlength="50" />
+      <textarea id="comment-text" placeholder="اكتب تعليقك هنا..." maxlength="500" rows="3"></textarea>
+      <button onclick="postComment()" id="comment-btn">إرسال التعليق</button>
+    </div>
+    <div id="comments-list"><div class="loading" style="padding:20px">جاري تحميل التعليقات...</div></div>
+  </div>
+</div>
+
 <footer>@Allarabblogs · أرشيف كامل + تغريدات جديدة · بحث ذكي بالذكاء الاصطناعي</footer>
 
 <script>
 
 let archiveTweets = [];
 let rssTweets = [];
-let recentSearches = [];
-try { recentSearches = JSON.parse(localStorage.getItem('tbot_recent')||'[]'); } catch(e){}
 
 
-function renderRecent(){
-  if(!recentSearches.length){document.getElementById('recent-wrap').style.display='none';return;}
-  document.getElementById('recent-wrap').style.display='block';
-  document.getElementById('recent-tags').innerHTML=recentSearches.slice(0,8).map(q=>`<span class="tag" onclick="fillSearch(${JSON.stringify(q)})">${q}</span>`).join('');
+const FILTERS=['نشرة مرجع التدوين','مشتركين تلفزيون المرجع'];
+let activeFilter=-1;
+
+function toggleFilter(idx){
+  activeFilter=(activeFilter===idx)?-1:idx;
+  const btn=document.getElementById('filter-'+idx);
+  if(activeFilter===idx){btn.classList.add('active');}else{btn.classList.remove('active');}
+  const status=document.getElementById('filter-status');
+  if(activeFilter>=0){
+    status.style.display='block';
+    status.textContent='تصفية مفعلة: '+FILTERS[activeFilter]+' — البحث الآن داخل هذه الفئة فقط';
+    document.getElementById('search-input').placeholder='ابحث داخل '+FILTERS[activeFilter]+'...';
+    showFilteredCategory();
+  }else{
+    status.style.display='none';
+    document.getElementById('search-input').placeholder='ابحث بأي كلمة أو معنى...';
+  }
 }
-function fillSearch(q){document.getElementById('search-input').value=q;doSearch();}
-function addRecent(q){
-  recentSearches=[q,...recentSearches.filter(r=>r!==q)].slice(0,8);
-  try{localStorage.setItem('tbot_recent',JSON.stringify(recentSearches));}catch(e){}
-  renderRecent();
+
+async function showSubscribers(){
+  const main=document.getElementById('main-area');
+  main.innerHTML='<div class="loading"><div class="spinner"></div><br>جاري تحميل قائمة المشتركين...</div>';
+  try{
+    const res=await fetch('subscribers.txt');
+    if(!res.ok)throw new Error('not found');
+    const text=await res.text();
+    const subs=text.split('\n').map(l=>l.trim()).filter(l=>l&&!l.startsWith('#')).map(l=>{
+      const parts=l.split('|').map(p=>p.trim());
+      return {name:parts[0]||'',handle:parts[1]||''};
+    }).filter(s=>s.name);
+    const safe=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    let html='<div class="subs-card"><h2 class="subs-title">📺 مشتركو تلفزيون المرجع النشطون</h2>';
+    if(!subs.length){
+      html+='<div style="text-align:center;color:#aaa;padding:20px;font-size:14px">لا يوجد مشتركون حالياً</div>';
+    }else{
+      html+=`<div class="subs-count">${subs.length} مشترك نشط — اضغط على اسم المشترك لعرض تغريداته</div><div class="subs-grid">`;
+      subs.forEach(s=>{
+        html+=`<button class="sub-btn" onclick="searchSubscriber(${JSON.stringify(s.handle)},${JSON.stringify(s.name)})">${safe(s.name)}</button>`;
+      });
+      html+='</div>';
+    }
+    html+='</div>';
+    main.innerHTML=html;
+  }catch(e){
+    main.innerHTML='<div class="error-msg">⚠️ تعذر تحميل قائمة المشتركين</div>';
+  }
+}
+
+function searchSubscriber(handle,name){
+  if(!handle){alert('لا يوجد معرف لهذا المشترك');return;}
+  activeFilter=-1;
+  document.getElementById('filter-0').classList.remove('active');
+  document.getElementById('filter-status').style.display='none';
+  document.getElementById('search-input').value=handle;
+  doSearch();
+}
+
+function getFilteredPool(){
+  const allTweets=[...rssTweets,...archiveTweets];
+  if(activeFilter<0)return allTweets;
+  const f=normalize(FILTERS[activeFilter]);
+  return allTweets.filter(t=>normalize(t.text).includes(f));
+}
+
+function showFilteredCategory(){
+  const pool=getFilteredPool();
+  const sorted=[...pool].sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,30);
+  const allTweets=[...rssTweets,...archiveTweets];
+  renderResults(FILTERS[activeFilter],sorted,pool.length,'');
+  const aiBox=document.getElementById('ai-box');
+  if(aiBox)aiBox.style.display='none';
 }
 
 function updateStats(){
@@ -184,13 +276,12 @@ function formatDate(dateStr){
 async function doSearch(){
   const q=document.getElementById('search-input').value.trim();
   if(!q)return;
-  const allTweets=[...rssTweets,...archiveTweets];
+  const allTweets=getFilteredPool();
   if(!allTweets.length){
     document.getElementById('main-area').innerHTML=`<div class="error-msg">⚠️ Tweets not loaded yet. Please refresh the page.</div>`;
     return;
   }
 
-  addRecent(q);
   document.getElementById('search-btn').disabled=true;
 
   const words=q.split(/\s+/).filter(Boolean);
@@ -250,10 +341,59 @@ function renderResults(q,results,total,aiPlaceholder){
 }
 
 document.getElementById('search-input').addEventListener('keydown',e=>{if(e.key==='Enter')doSearch();});
-renderRecent();
 loadArchive();
 loadRSS();
+loadComments();
 setInterval(loadRSS,15*60*1000);
+
+async function loadComments(){
+  try{
+    const res=await fetch('/api/comments');
+    const data=await res.json();
+    const list=document.getElementById('comments-list');
+    if(data.error){
+      list.innerHTML=`<div style="font-size:13px;color:#aaa;text-align:center;padding:14px">التعليقات غير مفعلة بعد</div>`;
+      return;
+    }
+    if(!data.comments||!data.comments.length){
+      list.innerHTML=`<div style="font-size:13px;color:#aaa;text-align:center;padding:14px">لا توجد تعليقات بعد. كن أول من يعلق!</div>`;
+      return;
+    }
+    list.innerHTML=data.comments.map(c=>{
+      const time=new Date(c.time).toLocaleDateString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
+      const safe=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      return `<div class="comment-item">
+        <div class="comment-author">${safe(c.name)}<span class="comment-time">${time}</span></div>
+        <div class="comment-body">${safe(c.text)}</div>
+      </div>`;
+    }).join('');
+  }catch(e){
+    document.getElementById('comments-list').innerHTML='';
+  }
+}
+
+async function postComment(){
+  const name=document.getElementById('comment-name').value.trim();
+  const text=document.getElementById('comment-text').value.trim();
+  if(!text){alert('اكتب تعليقاً أولاً');return;}
+  const btn=document.getElementById('comment-btn');
+  btn.disabled=true;btn.textContent='جاري الإرسال...';
+  try{
+    const res=await fetch('/api/comments',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({name,text})
+    });
+    const data=await res.json();
+    if(data.ok){
+      document.getElementById('comment-text').value='';
+      loadComments();
+    }else{
+      alert(data.error||'فشل إرسال التعليق');
+    }
+  }catch(e){alert('فشل إرسال التعليق');}
+  btn.disabled=false;btn.textContent='إرسال التعليق';
+}
 </script>
 </body>
 </html>
