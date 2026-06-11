@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>إدارة التعليقات</title>
+<meta name="robots" content="noindex, nofollow">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Tahoma,Arial,sans-serif;background:#f7f7f5;color:#1a1a1a;min-height:100vh;direction:rtl;padding:20px}
+.box{max-width:600px;margin:0 auto;background:#fff;border-radius:16px;border:1px solid #e5e5e5;padding:24px}
+h1{font-size:18px;margin-bottom:16px}
+input{width:100%;border:1px solid #e5e5e5;border-radius:10px;padding:10px 14px;font-size:14px;outline:none;background:#f7f7f5;font-family:inherit;margin-bottom:10px}
+input:focus{border-color:#1DA1F2;background:#fff}
+button{background:#1DA1F2;color:#fff;border:none;border-radius:10px;padding:10px 20px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit}
+button:hover{background:#0d8fd8}
+.del-btn{background:#fee2e2;color:#b91c1c;padding:5px 12px;font-size:12px;font-weight:500}
+.del-btn:hover{background:#fecaca}
+.del-all{background:#fff5f5;color:#b91c1c;border:1px solid #fecaca;margin-top:16px}
+.comment{border-bottom:1px solid #f0f0f0;padding:14px 0;display:flex;justify-content:space-between;align-items:start;gap:10px}
+.comment:last-child{border:none}
+.c-author{font-size:13px;font-weight:600;margin-bottom:4px}
+.c-time{font-size:11px;color:#aaa;font-weight:400;margin-right:8px}
+.c-text{font-size:14px;line-height:1.6;color:#333}
+.msg{font-size:13px;color:#888;text-align:center;padding:20px}
+#panel{display:none}
+</style>
+</head>
+<body>
+<div class="box">
+  <h1>🔐 إدارة التعليقات</h1>
+  <div id="login">
+    <input type="password" id="pw" placeholder="كلمة المرور" onkeydown="if(event.key==='Enter')login()">
+    <button onclick="login()">دخول</button>
+  </div>
+  <div id="panel">
+    <div id="list"><div class="msg">جاري التحميل...</div></div>
+    <button class="del-all" onclick="deleteAll()">🗑️ حذف جميع التعليقات</button>
+  </div>
+</div>
+<script>
+let PW='';
+async function api(body){
+  const res=await fetch('/api/admin',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  return res.json();
+}
+async function login(){
+  PW=document.getElementById('pw').value;
+  const data=await api({password:PW,action:'list'});
+  if(data.error){alert(data.error);return;}
+  document.getElementById('login').style.display='none';
+  document.getElementById('panel').style.display='block';
+  render(data.comments);
+}
+function render(comments){
+  const list=document.getElementById('list');
+  if(!comments||!comments.length){list.innerHTML='<div class="msg">لا توجد تعليقات</div>';return;}
+  const safe=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  list.innerHTML=comments.map((c,i)=>{
+    const time=new Date(c.time).toLocaleDateString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
+    return `<div class="comment">
+      <div>
+        <div class="c-author">${safe(c.name)}<span class="c-time">${time}</span></div>
+        <div class="c-text">${safe(c.text)}</div>
+      </div>
+      <button class="del-btn" onclick="del(${i})">حذف</button>
+    </div>`;
+  }).join('');
+}
+async function del(i){
+  if(!confirm('حذف هذا التعليق؟'))return;
+  const data=await api({password:PW,action:'delete',index:i});
+  if(data.error){alert(data.error);return;}
+  const fresh=await api({password:PW,action:'list'});
+  render(fresh.comments);
+}
+async function deleteAll(){
+  if(!confirm('⚠️ حذف جميع التعليقات نهائياً؟'))return;
+  const data=await api({password:PW,action:'deleteAll'});
+  if(data.error){alert(data.error);return;}
+  render([]);
+}
+</script>
+</body>
+</html>
