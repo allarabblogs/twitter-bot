@@ -174,7 +174,7 @@ function getFilteredPool(){
 
 function showFilteredCategory(){
   const pool=getFilteredPool();
-  const sorted=[...pool].sort((a,b)=>engagement(b)-engagement(a)).slice(0,30);
+  const sorted=[...pool].sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,30);
   const allTweets=[...rssTweets,...archiveTweets];
   renderResults(FILTERS[activeFilter],sorted,pool.length,'');
   const aiBox=document.getElementById('ai-box');
@@ -265,7 +265,7 @@ async function doSearch(){
   // STEP 1: Instant keyword search - always works
   const withScores=allTweets.map(t=>({...t,score:keywordScore(t,normWords)}));
   const keywordResults=withScores.filter(t=>t.score>0).sort((a,b)=>b.score-a.score).slice(0,30);
-  const sorted=[...keywordResults].sort((a,b)=>engagement(b)-engagement(a));
+  const sorted=[...keywordResults].sort((a,b)=>new Date(b.date)-new Date(a.date));
 
   // Render keyword results immediately
   renderResults(q,sorted,allTweets.length,'<div class="loading" style="padding:14px"><div class="spinner" style="width:14px;height:14px"></div> AI is analyzing...</div>');
@@ -340,7 +340,7 @@ function showDefaultFeed(){
   const feed=allTweets.filter(t=>{
     const tn=normalize(t.text);
     return handles.some(h=>h&&tn.includes(h));
-  }).sort((a,b)=>engagement(b)-engagement(a)).slice(0,30);
+  }).sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,30);
   if(!feed.length){
     document.getElementById('main-area').innerHTML=`<div class="init-msg"><div class="big">🔍</div>ابحث عن أي موضوع تودّ الاطلاع عليه أكثر<br><span style="font-size:13px;margin-top:6px;display:block">وستجد مدونات تجاوبك عنه</span></div>`;
     return;
