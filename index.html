@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>مكتب مرجع التدوين</title>
+<title>مكتبة مرجع التدوين</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Tahoma,Arial,sans-serif;background:#f7f7f5;color:#1a1a1a;min-height:100vh;direction:rtl}
@@ -87,7 +87,7 @@ footer{text-align:center;padding:30px 16px 16px;font-size:12px;color:#ccc}
     <svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.741l7.732-8.858L1.254 2.25H8.08l4.253 5.622 5.911-5.622z"/></svg>
   </div>
   <div class="top-bar-text">
-    <h1>مكتب مرجع التدوين</h1>
+    <h1>مكتبة مرجع التدوين</h1>
     <p class="subtitle">هنا مكتبة مرجع التدوين، ابحث عن أي موضوع تودّ الاطلاع عليه أكثر وستجد مدونات تجاوبك عنه.</p>
     <p id="load-status" class="load-note">جاري تحميل التغريدات...</p>
   </div>
@@ -131,7 +131,7 @@ footer{text-align:center;padding:30px 16px 16px;font-size:12px;color:#ccc}
   </div>
 </div>
 
-<footer>مكتب مرجع التدوين · @Allarabblogs · بحث ذكي بالذكاء الاصطناعي</footer>
+<footer>مكتبة مرجع التدوين · @Allarabblogs · بحث ذكي بالذكاء الاصطناعي</footer>
 
 <script>
 
@@ -175,8 +175,9 @@ async function showSubscribers(){
       html+='<div style="text-align:center;color:#aaa;padding:20px;font-size:14px">لا يوجد مشتركون حالياً</div>';
     }else{
       html+=`<div class="subs-count">${subs.length} مشترك نشط — اضغط على اسم المشترك لعرض تغريداته</div><div class="subs-grid">`;
-      subs.forEach(s=>{
-        html+=`<button class="sub-btn" onclick="searchSubscriber(${JSON.stringify(s.handle)},${JSON.stringify(s.name)})">${safe(s.name)}</button>`;
+      window._subs=subs;
+      subs.forEach((s,i)=>{
+        html+=`<button class="sub-btn" onclick="searchSubscriber(${i})">${safe(s.name)}</button>`;
       });
       html+='</div>';
     }
@@ -187,12 +188,13 @@ async function showSubscribers(){
   }
 }
 
-function searchSubscriber(handle,name){
-  if(!handle){alert('لا يوجد معرف لهذا المشترك');return;}
+function searchSubscriber(i){
+  const s=(window._subs||[])[i];
+  if(!s||!s.handle){alert('لا يوجد معرف لهذا المشترك');return;}
   activeFilter=-1;
   document.getElementById('filter-0').classList.remove('active');
   document.getElementById('filter-status').style.display='none';
-  document.getElementById('search-input').value=handle;
+  document.getElementById('search-input').value=s.handle;
   doSearch();
 }
 
