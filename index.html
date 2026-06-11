@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -61,22 +60,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Tahoma,Arial,sans-s
 .init-msg{text-align:center;padding:50px 20px;color:#aaa;font-size:14px}
 .init-msg .big{font-size:36px;margin-bottom:10px}
 .loading-steps{font-size:13px;color:#aaa;margin-top:8px}
-.comments-box{background:#fff;border-radius:16px;border:1px solid #e5e5e5;padding:18px;margin-top:20px}
-.comments-title{font-size:16px;font-weight:600;margin-bottom:14px;text-align:right}
-.comment-form{display:flex;flex-direction:column;gap:8px;margin-bottom:18px}
-.comment-form input,.comment-form textarea{border:1px solid #e5e5e5;border-radius:10px;padding:10px 14px;font-size:14px;outline:none;background:#f7f7f5;font-family:inherit;text-align:right;direction:rtl;resize:vertical}
-.comment-form input:focus,.comment-form textarea:focus{border-color:#1DA1F2;background:#fff}
-.comment-form button{background:#1DA1F2;color:#fff;border:none;border-radius:10px;padding:10px 20px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;align-self:flex-start}
-.comment-form button:hover{background:#0d8fd8}
-.comment-form button:disabled{background:#b0d8f5;cursor:not-allowed}
-.comment-item{border-bottom:1px solid #f0f0f0;padding:12px 0;text-align:right}
-.comment-item:last-child{border-bottom:none}
-.comment-author{font-size:13px;font-weight:600;color:#1a1a1a;margin-bottom:4px}
-.comment-time{font-size:11px;color:#aaa;font-weight:400;margin-right:8px}
-.comment-body{font-size:14px;line-height:1.7;color:#333}
-.comment-row{display:flex;justify-content:space-between;align-items:start;gap:10px}
-.comment-del{background:#fee2e2;color:#b91c1c;border:none;border-radius:8px;padding:5px 12px;font-size:12px;cursor:pointer;font-family:inherit;flex-shrink:0}
-.comment-del:hover{background:#fecaca}
 footer{text-align:center;padding:30px 16px 16px;font-size:12px;color:#ccc}
 @media(max-width:500px){.top-bar{padding:12px 14px}.container{padding:14px 10px}}
 </style>
@@ -111,23 +94,7 @@ footer{text-align:center;padding:30px 16px 16px;font-size:12px;color:#ccc}
     <div id="filter-status" style="display:none;font-size:12px;color:#1d4ed8;margin-top:8px;text-align:right"></div>
   </div>
   <div id="main-area">
-    <div class="init-msg">
-      <div class="big">🔍</div>
-      ابحث عن أي موضوع تودّ الاطلاع عليه أكثر<br>
-      <span style="font-size:13px;margin-top:6px;display:block">وستجد مدونات تجاوبك عنه</span>
-    </div>
-  </div>
-</div>
-
-<div class="container">
-  <div class="comments-box">
-    <h2 class="comments-title">💬 اترك تعليق عن آخر موضوع بحثت عنه، أو رابط مدونتك</h2>
-    <div class="comment-form">
-      <input type="text" id="comment-name" placeholder="اسمك (اختياري)" maxlength="50" />
-      <textarea id="comment-text" placeholder="اكتب تعليقك هنا..." maxlength="500" rows="3"></textarea>
-      <button onclick="postComment()" id="comment-btn">إرسال التعليق</button>
-    </div>
-    <div id="comments-list"><div class="loading" style="padding:20px">جاري تحميل التعليقات...</div></div>
+    <div class="loading"><div class="spinner"></div><br>جاري تحميل المنشورات...</div>
   </div>
 </div>
 
@@ -207,7 +174,7 @@ function getFilteredPool(){
 
 function showFilteredCategory(){
   const pool=getFilteredPool();
-  const sorted=[...pool].sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,30);
+  const sorted=[...pool].sort((a,b)=>engagement(b)-engagement(a)).slice(0,30);
   const allTweets=[...rssTweets,...archiveTweets];
   renderResults(FILTERS[activeFilter],sorted,pool.length,'');
   const aiBox=document.getElementById('ai-box');
@@ -255,6 +222,10 @@ async function loadRSS(){
   }catch(e){console.warn('RSS failed',e);}
 }
 
+function engagement(t){
+  return (t.likes||0)+(t.retweets||0)*2;
+}
+
 function normalize(s){
   return s.replace(/[أإآا]/g,'ا').replace(/[ةه]/g,'ه').replace(/[يى]/g,'ي').replace(/[\u064B-\u065F]/g,'').toLowerCase().trim();
 }
@@ -294,7 +265,7 @@ async function doSearch(){
   // STEP 1: Instant keyword search - always works
   const withScores=allTweets.map(t=>({...t,score:keywordScore(t,normWords)}));
   const keywordResults=withScores.filter(t=>t.score>0).sort((a,b)=>b.score-a.score).slice(0,30);
-  const sorted=[...keywordResults].sort((a,b)=>new Date(b.date)-new Date(a.date));
+  const sorted=[...keywordResults].sort((a,b)=>engagement(b)-engagement(a));
 
   // Render keyword results immediately
   renderResults(q,sorted,allTweets.length,'<div class="loading" style="padding:14px"><div class="spinner" style="width:14px;height:14px"></div> AI is analyzing...</div>');
@@ -337,7 +308,7 @@ function renderResults(q,results,total,aiPlaceholder){
       const link=t.link?`<a href="${t.link}" target="_blank" rel="noopener">View ↗</a>`:'';
       html+=`<div class="tweet-card">
         <div class="tweet-text">${t.text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>
-        <div class="tweet-meta">${badge}${date?`<span>${date}</span>`:''}${t.likes?`<span>♥ ${t.likes.toLocaleString()}</span>`:''}${link}</div>
+        <div class="tweet-meta">${badge}${date?`<span>${date}</span>`:''}${t.likes?`<span>♥ ${t.likes.toLocaleString()}</span>`:''}${t.retweets?`<span>🔁 ${t.retweets.toLocaleString()}</span>`:''}${link}</div>
       </div>`;
     });
   }
@@ -345,95 +316,52 @@ function renderResults(q,results,total,aiPlaceholder){
 }
 
 document.getElementById('search-input').addEventListener('keydown',e=>{if(e.key==='Enter')doSearch();});
-loadArchive();
-loadRSS();
-loadComments();
+let subscribersList=[];
+let defaultFeedShown=false;
+
+async function loadSubscribersList(){
+  try{
+    const res=await fetch('subscribers.txt');
+    if(!res.ok)return;
+    const text=await res.text();
+    subscribersList=text.split('\n').map(l=>l.trim()).filter(l=>l&&!l.startsWith('#')).map(l=>{
+      const parts=l.split('|').map(p=>p.trim());
+      return {name:parts[0]||'',handle:parts[1]||''};
+    }).filter(s=>s.handle);
+  }catch(e){console.warn('subscribers load failed',e);}
+}
+
+function showDefaultFeed(){
+  if(defaultFeedShown)return;
+  const allTweets=[...rssTweets,...archiveTweets];
+  if(!allTweets.length||!subscribersList.length)return;
+  defaultFeedShown=true;
+  const handles=subscribersList.map(s=>normalize(s.handle.replace('@','')));
+  const feed=allTweets.filter(t=>{
+    const tn=normalize(t.text);
+    return handles.some(h=>h&&tn.includes(h));
+  }).sort((a,b)=>engagement(b)-engagement(a)).slice(0,30);
+  if(!feed.length){
+    document.getElementById('main-area').innerHTML=`<div class="init-msg"><div class="big">🔍</div>ابحث عن أي موضوع تودّ الاطلاع عليه أكثر<br><span style="font-size:13px;margin-top:6px;display:block">وستجد مدونات تجاوبك عنه</span></div>`;
+    return;
+  }
+  renderResults('',feed,allTweets.length,'');
+  const aiBox=document.getElementById('ai-box');
+  if(aiBox)aiBox.style.display='none';
+  const label=document.querySelector('.results-label');
+  if(label)label.textContent='آخر المنشورات عن مشتركي تلفزيون المرجع';
+}
+
+async function init(){
+  await loadSubscribersList();
+  await loadArchive();
+  showDefaultFeed();
+  await loadRSS();
+  showDefaultFeed();
+}
+init();
 setInterval(loadRSS,15*60*1000);
 
-function getMySecrets(){
-  try{return JSON.parse(localStorage.getItem('tbot_my_comments')||'{}');}catch(e){return{};}
-}
-function saveMySecret(id,secret){
-  const m=getMySecrets();m[id]=secret;
-  try{localStorage.setItem('tbot_my_comments',JSON.stringify(m));}catch(e){}
-}
-
-async function loadComments(){
-  try{
-    const res=await fetch('/api/comments');
-    const data=await res.json();
-    const list=document.getElementById('comments-list');
-    if(data.error){
-      list.innerHTML=`<div style="font-size:13px;color:#aaa;text-align:center;padding:14px">التعليقات غير مفعلة بعد</div>`;
-      return;
-    }
-    if(!data.comments||!data.comments.length){
-      list.innerHTML=`<div style="font-size:13px;color:#aaa;text-align:center;padding:14px">لا توجد تعليقات بعد. كن أول من يعلق!</div>`;
-      return;
-    }
-    const mine=getMySecrets();
-    list.innerHTML=data.comments.map(c=>{
-      const time=new Date(c.time).toLocaleDateString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
-      const safe=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-      const delBtn=mine[c.id]?`<button class="comment-del" onclick="deleteMyComment('${c.id}')">حذف</button>`:'';
-      return `<div class="comment-item">
-        <div class="comment-row">
-          <div>
-            <div class="comment-author">${safe(c.name)}<span class="comment-time">${time}</span></div>
-            <div class="comment-body">${safe(c.text)}</div>
-          </div>
-          ${delBtn}
-        </div>
-      </div>`;
-    }).join('');
-  }catch(e){
-    document.getElementById('comments-list').innerHTML='';
-  }
-}
-
-async function deleteMyComment(id){
-  if(!confirm('حذف تعليقك؟'))return;
-  const mine=getMySecrets();
-  try{
-    const res=await fetch('/api/comments',{
-      method:'DELETE',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({id,secret:mine[id]})
-    });
-    const data=await res.json();
-    if(data.ok){
-      delete mine[id];
-      try{localStorage.setItem('tbot_my_comments',JSON.stringify(mine));}catch(e){}
-      loadComments();
-    }else{
-      alert(data.error||'فشل الحذف');
-    }
-  }catch(e){alert('فشل الحذف');}
-}
-
-async function postComment(){
-  const name=document.getElementById('comment-name').value.trim();
-  const text=document.getElementById('comment-text').value.trim();
-  if(!text){alert('اكتب تعليقاً أولاً');return;}
-  const btn=document.getElementById('comment-btn');
-  btn.disabled=true;btn.textContent='جاري الإرسال...';
-  try{
-    const res=await fetch('/api/comments',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({name,text})
-    });
-    const data=await res.json();
-    if(data.ok){
-      if(data.id&&data.secret)saveMySecret(data.id,data.secret);
-      document.getElementById('comment-text').value='';
-      loadComments();
-    }else{
-      alert(data.error||'فشل إرسال التعليق');
-    }
-  }catch(e){alert('فشل إرسال التعليق');}
-  btn.disabled=false;btn.textContent='إرسال التعليق';
-}
 </script>
 </body>
 </html>
