@@ -286,7 +286,8 @@ async function loadRSS(){
     const seen=new Set(archiveTweets.map(t=>dedupKey(t.text)));
     rssTweets=Array.from(items).map(item=>{
       const raw=item.querySelector('description')?.textContent||item.querySelector('title')?.textContent||'';
-      const text=raw.replace(/<[^>]+>/g,'').replace(/https?:\/\/t\.co\/\S+/g,'').trim();
+      let text=raw.replace(/<[^>]+>/g,'').replace(/https?:\/\/t\.co\/\S+/g,'').trim();
+      text=text.replace(/مرجع التدوين\s*\(@AllArabBlogs\)/gi,'').replace(/\(@AllArabBlogs\)/gi,'').replace(/@AllArabBlogs/gi,'').trim();
       return{text,date:item.querySelector('pubDate')?.textContent||'',likes:0,retweets:0,link:item.querySelector('link')?.textContent||'',source:'rss'};
     }).filter(t=>t.text.length>2&&!isReply(t.text)&&!seen.has(dedupKey(t.text)));
     updateStats();
@@ -371,6 +372,8 @@ async function doSearch(){
 
 function dedupKey(text){
   return normalize(text)
+    .replace(/مرجع التدوين/g,'')
+    .replace(/allarabblogs/gi,'')
     .replace(/https?:\/\/\S+/g,'')
     .replace(/[^\u0600-\u06FF a-z0-9]/g,'')
     .replace(/\s+/g,'')
