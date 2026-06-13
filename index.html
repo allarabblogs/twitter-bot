@@ -161,6 +161,7 @@ function toggleFilter(idx){
   }else{
     status.style.display='none';
     document.getElementById('search-input').placeholder='ابحث بأي كلمة أو معنى...';
+    goHome();
   }
 }
 
@@ -372,12 +373,15 @@ async function doSearch(){
 
 function dedupKey(text){
   return normalize(text)
+    .replace(/@\w+/g,'')
+    .replace(/\([^)]*\)/g,'')
     .replace(/مرجع التدوين/g,'')
     .replace(/allarabblogs/gi,'')
     .replace(/https?:\/\/\S+/g,'')
     .replace(/[^\u0600-\u06FF a-z0-9]/g,'')
     .replace(/\s+/g,'')
-    .trim();
+    .trim()
+    .slice(0,120);
 }
 function dedupe(tweets){
   const seen=new Set();
