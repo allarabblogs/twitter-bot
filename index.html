@@ -3,13 +3,47 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>مكتبة مرجع التدوين</title>
+<title>مكتبة مرجع التدوين | ابحث في آلاف المنشورات عن التدوين والكتابة</title>
+<meta name="description" content="مكتبة مرجع التدوين — ابحث في أكثر من 7000 منشور عن التدوين والكتابة والمحتوى العربي. بحث ذكي بالذكاء الاصطناعي يفهم المعنى ويعطيك مدونات تجاوب أسئلتك.">
+<meta name="keywords" content="التدوين, الكتابة, المدونات, مرجع التدوين, المحتوى العربي, تلفزيون المرجع, بحث المدونات">
+<meta name="author" content="مرجع التدوين">
+<link rel="canonical" href="https://library.tadweenhub.com/">
+
+<!-- Open Graph (Facebook, WhatsApp, LinkedIn) -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://library.tadweenhub.com/">
+<meta property="og:title" content="مكتبة مرجع التدوين">
+<meta property="og:description" content="ابحث في أكثر من 7000 منشور عن التدوين والكتابة. بحث ذكي يفهم المعنى ويعطيك مدونات تجاوب أسئلتك.">
+<meta property="og:locale" content="ar_AR">
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="مكتبة مرجع التدوين">
+<meta name="twitter:description" content="ابحث في أكثر من 7000 منشور عن التدوين والكتابة. بحث ذكي يفهم المعنى.">
+<meta name="twitter:site" content="@Allarabblogs">
+
+<!-- Structured data for Google -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "مكتبة مرجع التدوين",
+  "url": "https://library.tadweenhub.com/",
+  "description": "مكتبة بحث في آلاف المنشورات عن التدوين والكتابة العربية",
+  "inLanguage": "ar",
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": "https://library.tadweenhub.com/?q={search_term_string}",
+    "query-input": "required name=search_term_string"
+  }
+}
+</script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Tahoma,Arial,sans-serif;background:#f7f7f5;color:#1a1a1a;min-height:100vh;direction:rtl}
 .top-bar{background:#fff;border-bottom:1px solid #e5e5e5;padding:14px 24px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:10}
-.avatar{width:38px;height:38px;border-radius:50%;background:#1DA1F2;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.avatar svg{width:20px;height:20px;fill:#fff}
+.logo-link{flex-shrink:0;display:block;cursor:pointer}
+.logo-img{height:42px;width:auto;border-radius:6px;display:block}
 .top-bar-text h1{font-size:16px;font-weight:600;color:#1a1a1a}
 .top-bar-text .subtitle{font-size:12px;color:#888;line-height:1.5}
 .top-bar-text .load-note{font-size:11px;color:#bbb;margin-top:2px}
@@ -68,9 +102,9 @@ footer{text-align:center;padding:30px 16px 16px;font-size:12px;color:#ccc}
 </head>
 <body>
 <div class="top-bar">
-  <div class="avatar">
-    <svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.741l7.732-8.858L1.254 2.25H8.08l4.253 5.622 5.911-5.622z"/></svg>
-  </div>
+  <a href="#" onclick="goHome();return false;" class="logo-link" title="الصفحة الرئيسية">
+    <img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCAB4AGADASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD7KdlRGdjhVGSfQVR/tnTP+fxPyP8AhVm//wCPG4/65N/KuGnkkURKrsB5S8A+1fF8V8SYjJpwVKKaae6b6+TR2YXDxrJ3Ow/tnTP+fxPyNU5PFWhrqL6dHeCa7jUNJFGpZkBBIB44J2nA6/hXnZ1BtYuZbLTrh4o4p2iurpfvKFwGVD/eLZXd22MRziszwXZTaX55hijh1W5kaW628pahjkKx6vIVCcE5OBkgDJ8TD8cYuMJyxMIpq1opO+vV3lotNt9V3SfRLAwv7rZ6Re3Wu36O0eq2Oh2/UEQfaZgPUsxEa/TDD3rO+GlnNLc3/iW+17UtUS8YRaeb2RRtgXrIsaKqr5jfMMLnaE561z1zqUmoagdAVrm4tmTzr+VoxtkGcLGWI5DEHKrwQCOBnPQjUboAf6jj/pgn+FdkvEWFCCjUpu8tdIpWXT7beu+vT1I+oN7P+vuO6BB6EH6UOwRSxBIHoMn8q5NNR1Gztkmkht2inB2kxgE/gMUj6uFCE2djIWXJCgjb7H3rrfHWDUPfi4Ste0k1vs9E73TTM/qM76anVwyrKCVVxj+8hX+dPrkV1tB/zDbf8/8A61TjxNKBgWcf/fZ/wq6HHeVcv72pr5Rl/wDIhLA1ei/I6eiuaXxNISAbWMDud5/wq9aa9ZyHbNKsZ7HaQPzNehheLsoxUuWFZJ+d4/nYzlhKsVdot65cw2Wi313cMVhgt5JJCBnChSTXmupSzaqVtLCZ7a3SNY7m6Q4kJxkpH6HBAL9u3PI7fxjqlraWv2K5SRluVKNtjLZU/KcY7jIbnsDXnWrXT6VbWehaOqPqd0GW2D/MsSjmSeT1Vc9P4mKr3r5vj2DdbDxpr32pb7JKzcn6at+WvTXpwG0mxAI7e4bQvD6JbuoU3MyrlbRMfKAD1kI+6D0yWbsGWDUrOEHSdBiNzcRkhiySeUjE8tJJj5jnk4ySe4ps81t4a01NN0+J7/Updzxwu/7y4kP3ppm/hXPLOeAOB2FX9B006fbM1xMLm/uD5l3c7dvmP6AfwoOir2HuSa/Oq0qapOpO7T+G71m+spdeVbLVa6K752eir3sv+GJ9Ns/skDCSZrieRt88zDBkbpnHYAYAHYAD3q/sh+yeZ5377fjy9v8AD65qKrKW0X2WO4kuVAaTayKMuo9cfhXn0VUxE5uybs73drea1S06La3SxTtFIbJBcLZx3Dg+SzEIS3fvx+FF1LBJHCsNv5TKmHOc7j61E56orsyBiRn+eKWOQorrtRt67csMke49DQ6sFeEdE0k72k7rs7aJvt00bYWe7JryGcJFdSQpHHMPk2jAOOOn+etVqUsxUKWJVegJ6VznxA8XaZ4M0FtU1DdI7N5dvbocPPJjO0egA5J7D8BV08PUzDFRo4WDlOdklu3Lr0Wl7vyW76hfkjeT2OiBwegP1ratLZJ9EjlFuhk+1KpZV525H+NfL9t8edainiuLuwsZonnzLbxIy+TAOMK5OWc9cngAAY5OPrDwPPFdeH4rmFt8Ux8yNsdVYAg/kRX6Dl3A+YZbjlh8wglGrCdmrNXVr/NX+fRtanDWxUJQ5odGjCuvDuneHbZvEes6rJeJZxPcX1xeqrkFVJMsZA3IQeAqnBBxgnFcD4RmhubfUNav7q2Gs38W97UXK+ZZW4/1UB+YFSM5Y8fOx54FbHxJ1y18X/EbTvhfFE13psS/2jr8lvKCFjjDMlvJg5UGQRlu+Coxyai8ReGrDVNMtraK3htpLaeKWF4UCFAHBdRgfdZdwI759q9/xCrUabw1Gu3GVS95JbRvGyfk3q+uia7PHARk+ZroZvhfw9pd2sWrys13ubegE8nlM6kjLxsSS6kEYcvtIOK7CuS+JvjOw8CaGt81otxcXU5W3tkYR+Yx5diccAdScckj1qt8OviToXjIpaQeZZ6n5Rke0k54H3trDhgOPQ4Nfm2LyvN8wwjzX2UpUE2k97Jb6b2XWVlG99tj0Izpwl7O+p21cZcfFDwNBqv9ny65Gr5A87y2MIJJH38Y6g89O+ah+NOr31j4TTSdH3Nq2tziwtQrYYBhl2z2wvGe2c186eNPCcPhlY0bxRomp3eQslrZO7tFx3ONuB06g+1fU8D8E4DO6XtMfVlFzbUIxWrtvJ6NKN9E3ZXT1MMViZUnaC9T7DRldA6MGVgCCDkEHoQaWvmr4O+N/FsuoaL4LtdQhWze6ADvB5kyQj5nRWJwFwDjgkZ4r6L1i/t9L0q81O6yLe0geeTHXaoJIHvxXzXE3CeK4fx0cHUkpuWsbXu1eybVtG+yb2ZvQxEaseZFqvAP2nfEOjalHpOladqVvd3VpPK9wsLbxHlQACRxnrxmuL8e/FDxN4raSFrk6bphJxaWzFQV/wCmjdXP5D2pfBPwu8TeJ/KkjtjYWb4JublSqKvsvVyfQcepFfqnC/AlLharTznOsTGm4XtFbXaa1fV2e0VvazexwV8U66dOmrmVpVve+M9W0rw3pulafaniMNbW+19uPnllkOWbAyTk49B0r7w8CW8Vp4dhtIARFB+6TP8AdVQB+gry74f+B9E8F6e0GmxtLdSgC4vJQPMlx2/2V9FHH1PNereEf+QUf+urf0rCnxdRz/P4UsJFxoUoz5b7ycmryfrbS+u7erspq4d0qDct20cv4U+Gth4f8S694ma5e4vtRa58pQNqQxzSGRhj+Ji23JPQKAMc5gHQV6LICY2A6kHFecXEsVvBJPcSLFFEheR2OAqgZJPsAK+d8T3OrXw03q2pL7uX/M1y16SPH/2oNGsp9AsdelvvJurWT7NFAz8TBzk7R/eGMk+n4V5D8PvGtx4JkvbvT9MtLi/uYxEtxcliIUzkgKMZJOMknsK9n8J2Y+Jvi248Y6zbeZ4dsd9po9nMuVm7PKy9/wDHA/hrstM+HngfTZhNaeF9NWQHIaSMyEfTeTivZwfFeX8O5T/YOaU5VpLWUVZRi2+b2bd0/d05t1duOyCVCdap7Wm7f1ufObSeP/ipqwAEupParkBQkMFur9+wAOPcnFegeEfgIqATeJ9VUnAxbWI4H+87Dn8BV3x54+vPBfxHey0vQGNvOFe685NhvWEYRBE3RUQADjOSW45r1+xuXn06G7ubaSxd4hJJDOy7oeMlWIOMjvzWfE3GGeYLA4f6hThhsNVinBQ5XLu15au91FaNXfNdJ0MPSlJ87u0YvhbwT4X8MsJdI0iCK4xg3L5kmI7/ADnkfQYFcx+0L4ls9H8BXmkmZTqGqR+TFCD8wjyC7kdhgY9ya5b4nfGsxSS6X4MZHIJWTUmXcue4iU8H/ePHoO9ed/DfQdU8e+PoDfS3F5Gkq3Go3MzFyI1OcFj3bG0D3PYUuH+DMcpriHiGq4wpe/aTbnLl1V7/AAq9rLd7WVwq4mNvY0Vvoe1/Dn4T+GdH0+y1HUrP+0tUeJJXN0N0cTEA4WPpxnGTk8dq9Lo79MUV+VZtnONzfEPEYyo5y6Xei8ktkvJHfTpxpq0UFdd4R/5BR/66t/SvP/E+tWXh3QrnWNQL/Z7cAsEGSxJCqB9SQM9q6H4H69J4l+HVjrUyRJLcyS71jztUq5XAz7AV9j4e5fiHi3jeX92rwv8A3mr2+5a+q7nHmE1ycvU7evAPjjJc3OjWfhiwmENx4h1NLDfn7sWS0h/IAfjivf6+Y/2oLTVBpml67pZlT+ydQkleSL70O7GyT2AK4z7ivu85oRr5zl0JSUXzTs3tzKKcL9/eS067HFhnanN+h6Xo2nWekaVa6Xp8QitbWJYolH90evuep9yat1832Px58WQWyrd6VpV2wHMxSSPd7kKcflirdr8VfiZ4oH2XwzocAlJ+aW1tGlC/8CclR9TXxWI8L+IFOVXEuEVe7nKat5tvf71c71jqVrK/3Hvt7ZWV55DXtpb3HkSrLCZYw3lyDoy56N9K5z4neH9X8T6LDo2m3UVpDNL/AKZJI5C+WB90qoy/P8OVHHORxXA6L8OfiFrV5FqPi7xhPaOjblSCTzZk9lIwkf1XJr2aJFiiSJBhUUKPoBivnsbTp5DiaM8Ji415wu/dTcYvpZvSWuqa0utUbRbqxalGyZ5JpHwJ0SKcSatq13eID/q4VEQb/ebk49l216doOi6VoOnrp+j2EFlbKc7Ilxk+pPVj7nJrQorizbiXNc4Sjja8ppdNo/crK/na5VOjTp/CgoopJCI1JkIQerHH868PfQ1OJ+Ls9te+CvEWhqd9yukveEAg7QjocHuD0P0rV/Y5vBc/CNoN2Ta6ncR49A21x/6FXmttPcXfxy8VaLcTbornS7m2jDPncHRZEx9ASPoBXR/sOXpbRvE2mM3MVzBOF/30ZT+sYr+jODctWAyurhr30pVf/BkWv/bTw8ZPnkpeq+4+j688ugGnmBAKl2yCMgjJrtPEWr2GgaHe61qkwhs7KFppnPZQO3qT0A7kivJLbxrp3/Cuh441qzutGtJSXihnIeSRSCU2gdS5HA9OenNfN8f5Zi8bTw31eHN7zj/287WSW7bs/wBbGmAnGDlctzeFfDM9ybmfQNNlmJzuktw3Prg8fpWtDHHDEsMMaRRL91EUKo+gHFYtp4s0O98N3ev6fdre2tpA00yQndIm1dxQr1DcdK8U074861aw3kd5pdrqMr3DvbSmQxLHGTwhCj5sdjnPrXxGWcKZ/n0akaUXJ0mk4ylZpvtzaK3XbTa53zr0qVr9T6FklijeNJJURpW2RhmALtgnA9TgE4HpWL468TWHhLw7Nq98wOCI4I+8srfdX6dyewBNcF8LLjxR448Sx+MPEsEdrp+mpJFplvHGUQyuNryDOS2Fyu49zgdDXYfEnwRYeONKt7O9vLmz+yymaOWEA4yuCGB4Ix+VYTyfBZVm9LCZlVvFW9rya8r1fKmt9LczWzbSvbWvaSqU3KC9Dgvgh8StY8R+JrzSfEV5DLJchpLNI4AojKgl1BH8OMYzk5B5r2evCPht4O0rSfjVHH4f1g6tZaZp7y3U+VPlzPujEeV475wM9DXu/Y84A6nsPc13+IVLLYZpGeWx5YThGXLy8tm7/ZsrXiovbW9+pGEc3T9/e5X1EXTafcrYtGt2YXEBkJChyDtJx2zivDIvgb4huoRDq/iy0cbt21VlkyT99juIyccfjWbqvxr16x8Xa42mraXlhLOI7OK4LFYkjyu5QpGd/U/hWNZfGDxVaeJLrWbyOyvLp4Ps0cMyskdsm7cQiKRgkgZJyTgV9xw5wdxdk9GcsFKEOdRlryuTdvh95acvM0/na+hy1sTh6jXNc7bV4l0r9qTRjEm2K5ghQAD+EwNH/wCyitX9kmSKw+K3jHRY02r5LFdx+bEU5X6fx5qp8I9O8TeLPGK/ELxZEI1trcw6cvkeVvJz8yr12qGbBPUt7V13wO8Daja/F7xT4vfzbe0F7cW0SvHhbhHw7FT3wwXnp94V9DkeMp0sXPLalRSqUsPThJp3TlCUtE+rSkr9nddGc+Ii3Dn6Ns1P2gdTj1rxr4M+GO79xq1+l1qS5+9BGxKofZirH/gIroPF3hPQfF2hpo+sWQe1Qgw+WdjQERNtKEdMDj0xxivF/wBqj+2PDHxo0fxhb7whtYnsZf4VmhLZQ/8AfQJHcMfeuZPx/wDHIgCsujxsOjLaEFjtK5OWIA56AflXq51w/mOYRwdXLpJcl23ezu2treljKjUhBSUup7Z4Y0Dw/wCBPCbWrTQx2calry7uQiebnglyMDpwB+VeQ/s/eF9K1PxhruqG0hv9IsWMVi1xDkFjJuRgG6EIo+m4VhaX4e+I3xOv4pdUu7w2Ktk3V5lIIv8AcQYDN7KPqRXsc2p+FPhJ4f0zRXS6KTb2DIgZ5GGN8shyAOo/QAcV+e4yjiMloYnAUcS8Rj8XbmUNVFRvJu+92rq3u2T2slfvi1Uam42jHuP+JfjLU/DWyz0nTrGSZowY3nnz+Cwp85/HA9M15f8A2B8XviFMF1i5ubDTXPJuM28GP9mEYZ/xH416T4E+J8Hi/wAT/wBmaVoN1DbiN5JLuedFIVeB8gyeSQOvGa9Cr56nnOJ4RisM8DThibX55WnJX6pXfK/K/rHU2dNYj3uZ2PKp9D8Q/D7QING8A6Ql6848y71CSLzJZJen3AQqqB0znGenUnlH8F/GHxbP5fiDWZ7Gyk4kE9wEXHfEMR5+hxX0BRXFhOO8ZhearGjTlWk7urKPNO/dNuyt0VrLsVLCxlpd27dDC8IeFtI8MaHaaXY20T/Z0wZ5IlMkjE5LE47k9Og6Vrm1tWYubW3LE5LGJSSfXOKnCsVLBSQvUgdKm86L7D5H2dfN37vNzzj0/lXytTEVsXVnXxFR80ryu7+87+Xd38jdJRSUUQV13hH/AJBR/wCurf0rm5Yp102GVnj8lnbaoI3A9/5V03hRVXSRhw2XJOOx9K+x4Ew8qWcK6+xfXTez7/12Rx46SdH5ljW9H0rXLBrDWdOtNQtWOTDcwrImfXBHX3rmG+G3gjTbSaXSPCGi290BlJFs0LDBzwSCQfpRRX7JjOaphalLmaUotOz7o8iDtJMjOk6kEDfY5MY4Axn8q5zxP8PtI8QXtvf6/oEl7JbxmOLzS+xVJyflBA69zRRX5RX4dpZW/b4WtUjJRvdSSeu+qSZ6scTKppJIl0bw3ouhlv7I0Oz09mXazQWwRmHoTjJFakcUkkgjjjZnbooHJoor4ecJYnFRVabk5NJtu73tuztvyx0NK10DUJhlkWEf7Z5/IVrxeHLERqJHmd8ckNgE/Siiv2XLOC8pw9NSlT5219rX8NF+B41XGVZPe3oTR6HaJFJEklwqSY3qJODihdB04QtH5bncc7i3zD6GiivYXD2WaL2EdFbbo/8AhzL6xV/mGf8ACO6d/wBNv++6v2FnDZQeTBu25LfMcnNFFbYTJcBg6ntMPRjGW10iZ1qk1aTuf//Z" alt="مكتبة مرجع التدوين" class="logo-img">
+  </a>
   <div class="top-bar-text">
     <h1>مكتبة مرجع التدوين</h1>
     <p class="subtitle">هنا مكتبة مرجع التدوين، ابحث عن أي موضوع تودّ الاطلاع عليه أكثر وستجد مدونات تجاوبك عنه.</p>
@@ -158,14 +192,46 @@ async function showSubscribers(){
   }
 }
 
+let activeSubscriber=null;
+
 function searchSubscriber(i){
   const s=(window._subs||[])[i];
   if(!s||!s.handle){alert('لا يوجد معرف لهذا المشترك');return;}
   activeFilter=-1;
   document.getElementById('filter-0').classList.remove('active');
   document.getElementById('filter-status').style.display='none';
-  document.getElementById('search-input').value=s.handle;
-  doSearch();
+  activeSubscriber=s;
+  document.getElementById('search-input').value='';
+  document.getElementById('search-input').placeholder='ابحث داخل منشورات '+s.name+'...';
+  const status=document.getElementById('filter-status');
+  status.style.display='block';
+  status.innerHTML='تصفح منشورات: '+s.name+' — <a href="#" onclick="clearSubscriber();return false;" style="color:#1d4ed8;text-decoration:underline">عرض الكل</a>';
+  showSubscriberFeed();
+}
+
+function clearSubscriber(){
+  activeSubscriber=null;
+  document.getElementById('filter-status').style.display='none';
+  document.getElementById('search-input').value='';
+  document.getElementById('search-input').placeholder='ابحث بأي كلمة أو معنى...';
+  goHome();
+}
+
+function getSubscriberPool(){
+  if(!activeSubscriber)return[];
+  const allTweets=[...rssTweets,...archiveTweets];
+  const h=normalize(activeSubscriber.handle.replace('@',''));
+  return allTweets.filter(t=>normalize(t.text).includes(h));
+}
+
+function showSubscriberFeed(){
+  const pool=getSubscriberPool();
+  const sorted=[...pool].sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,50);
+  renderResults(activeSubscriber.name,sorted,pool.length,'');
+  const aiBox=document.getElementById('ai-box');
+  if(aiBox)aiBox.style.display='none';
+  const label=document.querySelector('.results-label');
+  if(label)label.textContent='منشورات '+activeSubscriber.name;
 }
 
 function getFilteredPool(){
@@ -254,7 +320,7 @@ function formatDate(dateStr){
 async function doSearch(){
   const q=document.getElementById('search-input').value.trim();
   if(!q)return;
-  const allTweets=getFilteredPool();
+  const allTweets=activeSubscriber?getSubscriberPool():getFilteredPool();
   if(!allTweets.length){
     document.getElementById('main-area').innerHTML=`<div class="error-msg">⚠️ Tweets not loaded yet. Please refresh the page.</div>`;
     return;
@@ -297,7 +363,18 @@ async function doSearch(){
   }
 }
 
+function dedupe(tweets){
+  const seen=new Set();
+  return tweets.filter(t=>{
+    const key=normalize(t.text).replace(/\s+/g,' ').trim();
+    if(seen.has(key))return false;
+    seen.add(key);
+    return true;
+  });
+}
+
 function renderResults(q,results,total,aiPlaceholder){
+  results=dedupe(results);
   let html=`<div class="ai-card" id="ai-box">${aiPlaceholder}</div>`;
   if(!results.length){
     html+=`<div class="empty">No tweets found for "<strong>${q}</strong>"<br><span style="font-size:12px;margin-top:6px;display:block">Try different or shorter words</span></div>`;
@@ -305,13 +382,10 @@ function renderResults(q,results,total,aiPlaceholder){
     html+=`<div class="results-label">${results.length} matching tweets from ${total.toLocaleString()} total</div>`;
     results.forEach(t=>{
       const date=formatDate(t.date);
-      const badge=t.source==='rss'
-        ?`<span class="source-badge badge-rss">New</span>`
-        :`<span class="source-badge badge-archive">Archive</span>`;
       const link=t.link?`<a href="${t.link}" target="_blank" rel="noopener">View ↗</a>`:'';
       html+=`<div class="tweet-card">
         <div class="tweet-text">${t.text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>
-        <div class="tweet-meta">${badge}${date?`<span>${date}</span>`:''}${t.likes?`<span>♥ ${t.likes.toLocaleString()}</span>`:''}${t.retweets?`<span>🔁 ${t.retweets.toLocaleString()}</span>`:''}${link}</div>
+        <div class="tweet-meta">${date?`<span>${date}</span>`:''}${link}</div>
       </div>`;
     });
   }
@@ -353,6 +427,17 @@ function showDefaultFeed(){
   if(aiBox)aiBox.style.display='none';
   const label=document.querySelector('.results-label');
   if(label)label.textContent='آخر المنشورات عن مشتركي تلفزيون المرجع';
+}
+
+function goHome(){
+  activeSubscriber=null;
+  activeFilter=-1;
+  const f0=document.getElementById('filter-0');if(f0)f0.classList.remove('active');
+  document.getElementById('filter-status').style.display='none';
+  document.getElementById('search-input').value='';
+  document.getElementById('search-input').placeholder='ابحث بأي كلمة أو معنى...';
+  defaultFeedShown=false;
+  showDefaultFeed();
 }
 
 async function init(){
