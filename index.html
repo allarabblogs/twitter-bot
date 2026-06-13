@@ -96,6 +96,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Tahoma,Arial,sans-s
 .init-msg{text-align:center;padding:50px 20px;color:#aaa;font-size:14px}
 .init-msg .big{font-size:36px;margin-bottom:10px}
 .loading-steps{font-size:13px;color:#aaa;margin-top:8px}
+.load-more-btn{display:block;width:100%;margin:10px 0 0;padding:12px;background:#fff;border:1px solid #e5e5e5;border-radius:12px;font-size:14px;font-weight:600;color:#1DA1F2;cursor:pointer;font-family:inherit}
+.load-more-btn:hover{background:#f7f7f5}
 footer{text-align:center;padding:30px 16px 16px;font-size:12px;color:#ccc}
 @media(max-width:500px){.top-bar{padding:12px 14px}.container{padding:14px 10px}}
 </style>
@@ -243,7 +245,7 @@ function getFilteredPool(){
 
 function showFilteredCategory(){
   const pool=getFilteredPool();
-  const sorted=[...pool].sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,30);
+  const sorted=[...pool].sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,300);
   const allTweets=[...rssTweets,...archiveTweets];
   renderResults(FILTERS[activeFilter],sorted,pool.length,'');
   const aiBox=document.getElementById('ai-box');
@@ -333,7 +335,7 @@ async function doSearch(){
 
   // STEP 1: Instant keyword search - always works
   const withScores=allTweets.map(t=>({...t,score:keywordScore(t,normWords)}));
-  const keywordResults=withScores.filter(t=>t.score>0).sort((a,b)=>b.score-a.score).slice(0,30);
+  const keywordResults=withScores.filter(t=>t.score>0).sort((a,b)=>b.score-a.score).slice(0,300);
   const sorted=[...keywordResults].sort((a,b)=>new Date(b.date)-new Date(a.date));
 
   // Render keyword results immediately
@@ -363,33 +365,62 @@ async function doSearch(){
   }
 }
 
+function dedupKey(text){
+  return normalize(text)
+    .replace(/https?:\/\/\S+/g,'')
+    .replace(/[^\u0600-\u06FF a-z0-9]/g,'')
+    .replace(/\s+/g,'')
+    .trim();
+}
 function dedupe(tweets){
   const seen=new Set();
   return tweets.filter(t=>{
-    const key=normalize(t.text).replace(/\s+/g,' ').trim();
+    const key=dedupKey(t.text);
+    if(!key)return true;
     if(seen.has(key))return false;
     seen.add(key);
     return true;
   });
 }
 
+let _allResults=[];
+let _shownCount=0;
+const PAGE_SIZE=35;
+
 function renderResults(q,results,total,aiPlaceholder){
   results=dedupe(results);
+  _allResults=results;
+  _shownCount=0;
   let html=`<div class="ai-card" id="ai-box">${aiPlaceholder}</div>`;
   if(!results.length){
     html+=`<div class="empty">No tweets found for "<strong>${q}</strong>"<br><span style="font-size:12px;margin-top:6px;display:block">Try different or shorter words</span></div>`;
-  }else{
-    html+=`<div class="results-label">${results.length} matching tweets from ${total.toLocaleString()} total</div>`;
-    results.forEach(t=>{
-      const date=formatDate(t.date);
-      const link=t.link?`<a href="${t.link}" target="_blank" rel="noopener">View ↗</a>`:'';
-      html+=`<div class="tweet-card">
-        <div class="tweet-text">${t.text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>
-        <div class="tweet-meta">${date?`<span>${date}</span>`:''}${link}</div>
-      </div>`;
-    });
+    document.getElementById('main-area').innerHTML=html;
+    return;
   }
+  html+=`<div class="results-label">${results.length} matching tweets from ${total.toLocaleString()} total</div>`;
+  html+=`<div id="results-container"></div>`;
+  html+=`<button id="load-more" class="load-more-btn" onclick="loadMore()" style="display:none">عرض المزيد</button>`;
   document.getElementById('main-area').innerHTML=html;
+  loadMore();
+}
+
+function loadMore(){
+  const container=document.getElementById('results-container');
+  if(!container)return;
+  const next=_allResults.slice(_shownCount,_shownCount+PAGE_SIZE);
+  let html='';
+  next.forEach(t=>{
+    const date=formatDate(t.date);
+    const link=t.link?`<a href="${t.link}" target="_blank" rel="noopener">View ↗</a>`:'';
+    html+=`<div class="tweet-card">
+      <div class="tweet-text">${t.text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>
+      <div class="tweet-meta">${date?`<span>${date}</span>`:''}${link}</div>
+    </div>`;
+  });
+  container.insertAdjacentHTML('beforeend',html);
+  _shownCount+=next.length;
+  const btn=document.getElementById('load-more');
+  if(btn)btn.style.display=_shownCount<_allResults.length?'block':'none';
 }
 
 document.getElementById('search-input').addEventListener('keydown',e=>{if(e.key==='Enter')doSearch();});
@@ -417,7 +448,7 @@ function showDefaultFeed(){
   const feed=allTweets.filter(t=>{
     const tn=normalize(t.text);
     return handles.some(h=>h&&tn.includes(h));
-  }).sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,30);
+  }).sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,300);
   if(!feed.length){
     document.getElementById('main-area').innerHTML=`<div class="init-msg"><div class="big">🔍</div>ابحث عن أي موضوع تودّ الاطلاع عليه أكثر<br><span style="font-size:13px;margin-top:6px;display:block">وستجد مدونات تجاوبك عنه</span></div>`;
     return;
