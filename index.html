@@ -270,7 +270,7 @@ async function loadArchive(){
       text:t.t, date:t.d, likes:t.l, retweets:t.r,
       link:t.i?`https://twitter.com/Allarabblogs/status/${t.i}`:'',
       source:'archive'
-    })).sort((a,b)=>new Date(b.date)-new Date(a.date));
+    })).filter(t=>!isReply(t.text)).sort((a,b)=>new Date(b.date)-new Date(a.date));
     updateStats();
   }catch(e){
     document.getElementById('load-status').textContent='Failed to load archive';
@@ -283,14 +283,18 @@ async function loadRSS(){
     const res=await fetch('/api/rss');
     const xml=new DOMParser().parseFromString(await res.text(),'text/xml');
     const items=xml.querySelectorAll('item');
-    const seen=new Set(archiveTweets.map(t=>t.text.slice(0,30)));
+    const seen=new Set(archiveTweets.map(t=>dedupKey(t.text)));
     rssTweets=Array.from(items).map(item=>{
       const raw=item.querySelector('description')?.textContent||item.querySelector('title')?.textContent||'';
       const text=raw.replace(/<[^>]+>/g,'').replace(/https?:\/\/t\.co\/\S+/g,'').trim();
       return{text,date:item.querySelector('pubDate')?.textContent||'',likes:0,retweets:0,link:item.querySelector('link')?.textContent||'',source:'rss'};
-    }).filter(t=>t.text.length>2&&!seen.has(t.text.slice(0,30)));
+    }).filter(t=>t.text.length>2&&!isReply(t.text)&&!seen.has(dedupKey(t.text)));
     updateStats();
   }catch(e){console.warn('RSS failed',e);}
+}
+
+function isReply(text){
+  return /^\s*@/.test(text);
 }
 
 function engagement(t){
