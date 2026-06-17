@@ -319,6 +319,11 @@ async function loadRSS(){
       return{text,date:item.querySelector('pubDate')?.textContent||'',likes:0,retweets:0,link:item.querySelector('link')?.textContent||'',source:'rss'};
     }).filter(t=>t.text.length>2&&!isReply(t.text)&&!seen.has(dedupKey(t.text)));
     updateStats();
+    // Refresh the home feed so new tweets appear without manual interaction
+    if(activeFilter<0&&!activeSubscriber&&!(document.getElementById('search-input')&&document.getElementById('search-input').value.trim())){
+      defaultFeedShown=false;
+      showDefaultFeed();
+    }
   }catch(e){console.warn('RSS failed',e);}
 }
 
@@ -478,7 +483,7 @@ async function loadSubscribersList(){
 }
 
 function showDefaultFeed(){
-  if(defaultFeedShown)return;
+  if(activeFilter>=0||activeSubscriber||(document.getElementById('search-input')&&document.getElementById('search-input').value.trim()))return;
   const allTweets=[...rssTweets,...archiveTweets];
   if(!allTweets.length||!subscribersList.length)return;
   defaultFeedShown=true;
