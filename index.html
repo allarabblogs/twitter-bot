@@ -201,8 +201,10 @@ async function showSubscribers(){
     const text=await res.text();
     const subs=text.split('\n').map(l=>l.trim()).filter(l=>l&&!l.startsWith('#')).map(l=>{
       const parts=l.split('|').map(p=>p.trim());
-      return {name:parts[0]||'',handle:parts[1]||''};
-    }).filter(s=>s.name);
+      const name=parts[0]||'';
+      const keywords=(parts[1]||'').split(',').map(k=>k.trim()).filter(Boolean);
+      return {name,keywords,handle:keywords[0]||''};
+    }).filter(s=>s.name&&s.keywords.length);
     const safe=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
     let html='<div class="subs-card"><h2 class="subs-title">📺 مشتركو تلفزيون المرجع النشطون</h2>';
     if(!subs.length){
@@ -250,8 +252,11 @@ function clearSubscriber(){
 function getSubscriberPool(){
   if(!activeSubscriber)return[];
   const allTweets=[...rssTweets,...archiveTweets];
-  const h=normalize(activeSubscriber.handle.replace('@',''));
-  return allTweets.filter(t=>normalize(t.text).includes(h));
+  const keys=activeSubscriber.keywords.map(k=>normalize(k.replace('@','')));
+  return allTweets.filter(t=>{
+    const tn=normalize(t.text);
+    return keys.some(k=>k&&tn.includes(k));
+  });
 }
 
 function showSubscriberFeed(){
@@ -477,8 +482,10 @@ async function loadSubscribersList(){
     const text=await res.text();
     subscribersList=text.split('\n').map(l=>l.trim()).filter(l=>l&&!l.startsWith('#')).map(l=>{
       const parts=l.split('|').map(p=>p.trim());
-      return {name:parts[0]||'',handle:parts[1]||''};
-    }).filter(s=>s.handle);
+      const name=parts[0]||'';
+      const keywords=(parts[1]||'').split(',').map(k=>k.trim()).filter(Boolean);
+      return {name,keywords,handle:keywords[0]||''};
+    }).filter(s=>s.keywords.length);
   }catch(e){console.warn('subscribers load failed',e);}
 }
 
@@ -487,11 +494,12 @@ function showDefaultFeed(){
   const allTweets=[...rssTweets,...archiveTweets];
   if(!allTweets.length||!subscribersList.length)return;
   defaultFeedShown=true;
-  const handles=subscribersList.map(s=>normalize(s.handle.replace('@','')));
+  const allKeys=[];
+  subscribersList.forEach(s=>s.keywords.forEach(k=>allKeys.push(normalize(k.replace('@','')))));
   const newsletterKey=normalize('نشرة مرجع التدوين');
   const feed=allTweets.filter(t=>{
     const tn=normalize(t.text);
-    const isSubscriber=handles.some(h=>h&&tn.includes(h));
+    const isSubscriber=allKeys.some(k=>k&&tn.includes(k));
     const isNewsletter=tn.includes(newsletterKey);
     return isSubscriber||isNewsletter;
   }).sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,300);
