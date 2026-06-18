@@ -488,9 +488,12 @@ function showDefaultFeed(){
   if(!allTweets.length||!subscribersList.length)return;
   defaultFeedShown=true;
   const handles=subscribersList.map(s=>normalize(s.handle.replace('@','')));
+  const newsletterKey=normalize('نشرة مرجع التدوين');
   const feed=allTweets.filter(t=>{
     const tn=normalize(t.text);
-    return handles.some(h=>h&&tn.includes(h));
+    const isSubscriber=handles.some(h=>h&&tn.includes(h));
+    const isNewsletter=tn.includes(newsletterKey);
+    return isSubscriber||isNewsletter;
   }).sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,300);
   if(!feed.length){
     document.getElementById('main-area').innerHTML=`<div class="init-msg"><div class="big">🔍</div>ابحث عن أي موضوع تودّ الاطلاع عليه أكثر<br><span style="font-size:13px;margin-top:6px;display:block">وستجد مدونات تجاوبك عنه</span></div>`;
@@ -500,7 +503,7 @@ function showDefaultFeed(){
   const aiBox=document.getElementById('ai-box');
   if(aiBox)aiBox.style.display='none';
   const label=document.querySelector('.results-label');
-  if(label)label.textContent='آخر المنشورات عن مشتركي تلفزيون المرجع';
+  if(label)label.textContent='آخر المنشورات — النشرة ومشتركو تلفزيون المرجع';
 }
 
 function goHome(){
