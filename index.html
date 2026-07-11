@@ -554,27 +554,3 @@ setInterval(loadRSS,15*60*1000);
 </script>
 </body>
 </html>
-  await loadArchive();
-  showDefaultFeed();
-  await loadRSS();
-  showDefaultFeed();
-}
-init();
-setInterval(loadRSS,15*60*1000);
-
-(async function trackView(){
-  try{
-    // count each visitor session once
-    const counted=sessionStorage.getItem('tbot_viewed');
-    const res=await fetch('/api/views',{method:counted?'GET':'POST'});
-    const data=await res.json();
-    if(!counted)try{sessionStorage.setItem('tbot_viewed','1');}catch(e){}
-    if(data.views){
-      document.getElementById('view-count').textContent='👁️ '+data.views.toLocaleString()+' زيارة';
-    }
-  }catch(e){}
-})();
-
-</script>
-</body>
-</html>
