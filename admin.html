@@ -41,6 +41,7 @@ button:hover{background:#0d8fd8}
     <div id="comments-tab">
       <div id="list"><div class="msg">جاري التحميل...</div></div>
       <button class="del-all" onclick="deleteAll()">🗑️ حذف جميع التعليقات</button>
+      <button style="background:#f0f0f0;color:#555;margin-top:8px" onclick="logout()">تسجيل الخروج</button>
     </div>
     <div id="searches-tab" style="display:none">
       <div id="top-terms"></div>
@@ -56,22 +57,40 @@ async function api(body){
   const text=await res.text();
   try{return JSON.parse(text);}catch(e){throw new Error('رد غير متوقع من الخادم: '+text.slice(0,100));}
 }
-async function login(){
-  PW=document.getElementById('pw').value;
+async function login(pwOverride){
+  PW=pwOverride||document.getElementById('pw').value;
   if(!PW){alert('أدخل كلمة المرور');return;}
   const btn=document.querySelector('#login button');
-  btn.textContent='جاري الدخول...';btn.disabled=true;
+  if(btn){btn.textContent='جاري الدخول...';btn.disabled=true;}
   try{
     const data=await api({password:PW,action:'list'});
-    if(data.error){alert(data.error);btn.textContent='دخول';btn.disabled=false;return;}
+    if(data.error){
+      try{localStorage.removeItem('tbot_admin_pw');}catch(e){}
+      if(!pwOverride)alert(data.error);
+      if(btn){btn.textContent='دخول';btn.disabled=false;}
+      return;
+    }
+    try{localStorage.setItem('tbot_admin_pw',PW);}catch(e){}
     document.getElementById('login').style.display='none';
     document.getElementById('panel').style.display='block';
     render(data.comments);
   }catch(e){
-    alert('خطأ: '+e.message);
-    btn.textContent='دخول';btn.disabled=false;
+    if(!pwOverride)alert('خطأ: '+e.message);
+    if(btn){btn.textContent='دخول';btn.disabled=false;}
   }
 }
+
+function logout(){
+  try{localStorage.removeItem('tbot_admin_pw');}catch(e){}
+  location.reload();
+}
+
+// Auto-login if password saved
+(function(){
+  let saved=null;
+  try{saved=localStorage.getItem('tbot_admin_pw');}catch(e){}
+  if(saved)login(saved);
+})();
 function render(comments){
   const list=document.getElementById('list');
   if(!comments||!comments.length){list.innerHTML='<div class="msg">لا توجد تعليقات</div>';return;}
