@@ -373,6 +373,8 @@ async function doSearch(){
 
   document.getElementById('search-btn').disabled=true;
 
+  try{fetch('/api/track',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({q})});}catch(e){}
+
   const words=q.split(/\s+/).filter(Boolean);
   const normWords=words.map(normalize);
 
@@ -458,11 +460,10 @@ function loadMore(){
   const next=_allResults.slice(_shownCount,_shownCount+PAGE_SIZE);
   let html='';
   next.forEach(t=>{
-    const date=formatDate(t.date);
     const link=t.link?`<a href="${t.link}" target="_blank" rel="noopener">View ↗</a>`:'';
     html+=`<div class="tweet-card">
       <div class="tweet-text">${t.text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>
-      <div class="tweet-meta">${date?`<span>${date}</span>`:''}${link}</div>
+      <div class="tweet-meta">${link}</div>
     </div>`;
   });
   container.insertAdjacentHTML('beforeend',html);
