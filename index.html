@@ -321,6 +321,7 @@ async function loadRSS(){
       const raw=item.querySelector('description')?.textContent||item.querySelector('title')?.textContent||'';
       let text=raw.replace(/<[^>]+>/g,'').replace(/https?:\/\/t\.co\/\S+/g,'').trim();
       text=text.replace(/مرجع التدوين\s*\(@AllArabBlogs\)/gi,'').replace(/\(@AllArabBlogs\)/gi,'').replace(/@AllArabBlogs/gi,'').trim();
+      text=text.replace(/(January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{1,2},\s+\d{4}\s*$/i,'').replace(/\d{1,2}\s+(يناير|فبراير|مارس|أبريل|مايو|يونيو|يوليو|أغسطس|سبتمبر|أكتوبر|نوفمبر|ديسمبر)\s+\d{4}\s*$/,'').trim();
       return{text,date:item.querySelector('pubDate')?.textContent||'',likes:0,retweets:0,link:item.querySelector('link')?.textContent||'',source:'rss'};
     }).filter(t=>t.text.length>2&&!isReply(t.text)&&!seen.has(dedupKey(t.text)));
     updateStats();
@@ -460,10 +461,11 @@ function loadMore(){
   const next=_allResults.slice(_shownCount,_shownCount+PAGE_SIZE);
   let html='';
   next.forEach(t=>{
+    const date=formatDate(t.date);
     const link=t.link?`<a href="${t.link}" target="_blank" rel="noopener">View ↗</a>`:'';
     html+=`<div class="tweet-card">
       <div class="tweet-text">${t.text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>
-      <div class="tweet-meta">${link}</div>
+      <div class="tweet-meta">${date?`<span>${date}</span>`:''}${link}</div>
     </div>`;
   });
   container.insertAdjacentHTML('beforeend',html);
@@ -528,6 +530,30 @@ function goHome(){
 
 async function init(){
   await loadSubscribersList();
+  await loadArchive();
+  showDefaultFeed();
+  await loadRSS();
+  showDefaultFeed();
+}
+init();
+setInterval(loadRSS,15*60*1000);
+
+(async function trackView(){
+  try{
+    // count each visitor session once
+    const counted=sessionStorage.getItem('tbot_viewed');
+    const res=await fetch('/api/views',{method:counted?'GET':'POST'});
+    const data=await res.json();
+    if(!counted)try{sessionStorage.setItem('tbot_viewed','1');}catch(e){}
+    if(data.views){
+      document.getElementById('view-count').textContent='👁️ '+data.views.toLocaleString()+' زيارة';
+    }
+  }catch(e){}
+})();
+
+</script>
+</body>
+</html>
   await loadArchive();
   showDefaultFeed();
   await loadRSS();
