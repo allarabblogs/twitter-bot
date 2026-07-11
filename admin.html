@@ -34,23 +34,43 @@ button:hover{background:#0d8fd8}
     <button onclick="login()">دخول</button>
   </div>
   <div id="panel">
-    <div id="list"><div class="msg">جاري التحميل...</div></div>
-    <button class="del-all" onclick="deleteAll()">🗑️ حذف جميع التعليقات</button>
+    <div style="display:flex;gap:8px;margin-bottom:16px">
+      <button onclick="showTab('comments')" id="tab-comments">التعليقات</button>
+      <button onclick="showTab('searches')" id="tab-searches" style="background:#f0f0f0;color:#555">عمليات البحث</button>
+    </div>
+    <div id="comments-tab">
+      <div id="list"><div class="msg">جاري التحميل...</div></div>
+      <button class="del-all" onclick="deleteAll()">🗑️ حذف جميع التعليقات</button>
+    </div>
+    <div id="searches-tab" style="display:none">
+      <div id="top-terms"></div>
+      <div id="search-list"><div class="msg">جاري التحميل...</div></div>
+    </div>
   </div>
 </div>
 <script>
 let PW='';
 async function api(body){
   const res=await fetch('/api/admin',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
-  return res.json();
+  if(!res.ok&&res.status===404)throw new Error('ملف api/admin.js غير موجود — تأكد من رفعه في مجلد api');
+  const text=await res.text();
+  try{return JSON.parse(text);}catch(e){throw new Error('رد غير متوقع من الخادم: '+text.slice(0,100));}
 }
 async function login(){
   PW=document.getElementById('pw').value;
-  const data=await api({password:PW,action:'list'});
-  if(data.error){alert(data.error);return;}
-  document.getElementById('login').style.display='none';
-  document.getElementById('panel').style.display='block';
-  render(data.comments);
+  if(!PW){alert('أدخل كلمة المرور');return;}
+  const btn=document.querySelector('#login button');
+  btn.textContent='جاري الدخول...';btn.disabled=true;
+  try{
+    const data=await api({password:PW,action:'list'});
+    if(data.error){alert(data.error);btn.textContent='دخول';btn.disabled=false;return;}
+    document.getElementById('login').style.display='none';
+    document.getElementById('panel').style.display='block';
+    render(data.comments);
+  }catch(e){
+    alert('خطأ: '+e.message);
+    btn.textContent='دخول';btn.disabled=false;
+  }
 }
 function render(comments){
   const list=document.getElementById('list');
@@ -74,6 +94,39 @@ async function del(i){
   const fresh=await api({password:PW,action:'list'});
   render(fresh.comments);
 }
+function showTab(t){
+  document.getElementById('comments-tab').style.display=t==='comments'?'block':'none';
+  document.getElementById('searches-tab').style.display=t==='searches'?'block':'none';
+  document.getElementById('tab-comments').style.cssText=t==='comments'?'':'background:#f0f0f0;color:#555';
+  document.getElementById('tab-searches').style.cssText=t==='searches'?'':'background:#f0f0f0;color:#555';
+  if(t==='searches')loadSearches();
+}
+
+async function loadSearches(){
+  const data=await api({password:PW,action:'searches'});
+  if(data.error){alert(data.error);return;}
+  const searches=data.searches||[];
+  const safe=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+  // Top terms
+  const counts={};
+  searches.forEach(s=>{const k=s.q.toLowerCase();counts[k]=(counts[k]||0)+1;});
+  const top=Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,15);
+  document.getElementById('top-terms').innerHTML=
+    '<div style="font-weight:700;font-size:14px;margin-bottom:8px">🔝 أكثر الكلمات بحثاً ('+searches.length+' عملية بحث)</div>'+
+    '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:18px">'+
+    top.map(([term,n])=>'<span style="background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8;border-radius:999px;padding:4px 12px;font-size:13px">'+safe(term)+' <b>('+n+')</b></span>').join('')+
+    '</div>';
+
+  // Recent list
+  document.getElementById('search-list').innerHTML=
+    '<div style="font-weight:700;font-size:14px;margin-bottom:8px">آخر عمليات البحث</div>'+
+    searches.slice(0,100).map(s=>{
+      const time=new Date(s.time).toLocaleDateString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
+      return '<div class="comment"><div><div class="c-text">'+safe(s.q)+'</div></div><span class="c-time">'+time+'</span></div>';
+    }).join('');
+}
+
 async function deleteAll(){
   if(!confirm('⚠️ حذف جميع التعليقات نهائياً؟'))return;
   const data=await api({password:PW,action:'deleteAll'});
@@ -82,4 +135,4 @@ async function deleteAll(){
 }
 </script>
 </body>
-</html> 
+</html>
