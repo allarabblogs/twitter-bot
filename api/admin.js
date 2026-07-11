@@ -16,6 +16,13 @@ export default async function handler(req, res) {
   const headers = { Authorization: `Bearer ${token}` };
 
   try {
+    if (action === 'searches') {
+      const r = await fetch(`${url}/lrange/searches/0/999`, { headers });
+      const data = await r.json();
+      const searches = (data.result || []).map(c => { try { return JSON.parse(c); } catch(e) { return null; } }).filter(Boolean);
+      return res.status(200).json({ searches });
+    }
+
     if (action === 'list') {
       const r = await fetch(`${url}/lrange/comments/0/199`, { headers });
       const data = await r.json();
