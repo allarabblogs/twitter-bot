@@ -154,7 +154,8 @@ footer{text-align:center;padding:30px 16px 16px;font-size:12px;color:var(--text-
     </div>
     <div class="filter-row">
       <button class="filter-btn" id="filter-0" onclick="toggleFilter(0)">📰 نشرة مرجع التدوين</button>
-      <button class="filter-btn" id="featured-btn" onclick="toggleFeatured()">⭐ تدوينات على مقاعد الدراسة</button>
+      <button class="filter-btn" id="featured-btn" onclick="toggleFeatured()">⭐ تدوينات عن مقاعد الدراسة</button>
+      <button class="filter-btn" id="summer-btn" onclick="toggleSummer()">☀️ دليل المدونات الصيفي</button>
       <button class="filter-btn" id="subs-btn" onclick="showSubscribers()">📺 مشتركين تلفزيون المرجع</button>
       <a href="https://tadweenhub.com" target="_blank" rel="noopener" class="subscribe-btn">⭐ اشترك في تلفزيون المرجع</a>
     </div>
@@ -480,6 +481,61 @@ let subscribersList=[];
 let defaultFeedShown=false;
 let featuredItems=[];
 let featuredActive=false;
+let summerItems=[];
+let summerActive=false;
+
+async function loadSummerItems(){
+  try{
+    const res=await fetch('summer-guide.txt');
+    if(!res.ok)return;
+    const text=await res.text();
+    summerItems=text.split('\n').map(l=>l.trim()).filter(l=>l&&!l.startsWith('#')).map(l=>{
+      const parts=l.split('|').map(p=>p.trim());
+      return {text:parts[0]||'',link:parts[1]||''};
+    }).filter(i=>i.text);
+  }catch(e){console.warn('summer items load failed',e);}
+}
+
+function toggleSummer(){
+  summerActive=!summerActive;
+  const btn=document.getElementById('summer-btn');
+  if(summerActive){
+    btn.classList.add('active');
+    activeFilter=-1;
+    activeSubscriber=null;
+    featuredActive=false;
+    const f0=document.getElementById('filter-0');if(f0)f0.classList.remove('active');
+    const fb=document.getElementById('featured-btn');if(fb)fb.classList.remove('active');
+    document.getElementById('search-input').value='';
+    const status=document.getElementById('filter-status');
+    status.style.display='block';
+    status.textContent='تصفية مفعلة: دليل المدونات الصيفي';
+    showSummerFeed();
+  }else{
+    btn.classList.remove('active');
+    document.getElementById('filter-status').style.display='none';
+    goHome();
+  }
+}
+
+function showSummerFeed(){
+  let html='';
+  if(!summerItems.length){
+    html='<div class="empty">لا توجد منشورات في دليل المدونات الصيفي بعد</div>';
+  }else{
+    html+='<div class="results-label">دليل المدونات الصيفي</div>';
+    summerItems.forEach(item=>{
+      const link=item.link?`<a href="${item.link}" target="_blank" rel="noopener">View ↗</a>`:'';
+      html+=`<div class="tweet-card">
+        <div class="tweet-text">${item.text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>
+        <div class="tweet-meta">${link}</div>
+      </div>`;
+    });
+  }
+  document.getElementById('main-area').innerHTML=html;
+  const aiBox=document.getElementById('ai-box');
+  if(aiBox)aiBox.style.display='none';
+}
 
 async function loadFeaturedItems(){
   try{
@@ -500,11 +556,13 @@ function toggleFeatured(){
     btn.classList.add('active');
     activeFilter=-1;
     activeSubscriber=null;
+    summerActive=false;
     const f0=document.getElementById('filter-0');if(f0)f0.classList.remove('active');
+    const sb=document.getElementById('summer-btn');if(sb)sb.classList.remove('active');
     document.getElementById('search-input').value='';
     const status=document.getElementById('filter-status');
     status.style.display='block';
-    status.textContent='تصفية مفعلة: تدوينات على مقاعد الدراسة';
+    status.textContent='تصفية مفعلة: تدوينات عن مقاعد الدراسة';
     showFeaturedFeed();
   }else{
     btn.classList.remove('active');
@@ -518,7 +576,7 @@ function showFeaturedFeed(){
   if(!featuredItems.length){
     html='<div class="empty">لا توجد منشورات مختارة بعد</div>';
   }else{
-    html+='<div class="results-label">تدوينات على مقاعد الدراسة</div>';
+    html+='<div class="results-label">تدوينات عن مقاعد الدراسة</div>';
     featuredItems.forEach(item=>{
       const link=item.link?`<a href="${item.link}" target="_blank" rel="noopener">View ↗</a>`:'';
       html+=`<div class="tweet-card">
@@ -575,7 +633,9 @@ function goHome(){
   activeSubscriber=null;
   activeFilter=-1;
   featuredActive=false;
+  summerActive=false;
   const fb=document.getElementById('featured-btn');if(fb)fb.classList.remove('active');
+  const sb=document.getElementById('summer-btn');if(sb)sb.classList.remove('active');
   const f0=document.getElementById('filter-0');if(f0)f0.classList.remove('active');
   document.getElementById('filter-status').style.display='none';
   document.getElementById('search-input').value='';
@@ -587,6 +647,7 @@ function goHome(){
 async function init(){
   await loadSubscribersList();
   await loadFeaturedItems();
+  await loadSummerItems();
   await loadArchive();
   showDefaultFeed();
   await loadRSS();
