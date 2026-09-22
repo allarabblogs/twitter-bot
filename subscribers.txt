@@ -3,12 +3,13 @@
 # مثال: أحمد محمد | @ahmed123
 # الأسطر التي تبدأ بـ # يتم تجاهلها
 
-احمد قربان | @a7medqq
 حصة | حصة, حصه
 داليا | @Skywardbough_
-فوزية | @almall31lakkk
 معاذ | @muath_i
 لين | @linsaloned
 بدرية | @badriya_moosa
 مريم بازرعة | @mariam_blogger
 كالنبتة | كالنبتة
+أحمد الشمراني | @AhShamrani
+طارق الخميس | @Tariqkhamis9
+شهد الداود | @YourfavShahd
